@@ -1,0 +1,164 @@
+:root {
+  --primary: #4e54c8;
+  --secondary: #8f94fb;
+  --text-dark: #333;
+  --text-light: #fff;
+  --bg-light: #f4f6f9;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: white;
+  height: 100vh;
+  position: fixed;
+  padding: 30px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 40px;
+}
+
+.nav-links a {
+  display: block;
+  padding: 12px 15px;
+  color: #666;
+  text-decoration: none;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: 0.3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 5px 15px rgba(78, 84, 200, 0.3);
+}
+
+/* Main Content Area */
+.main-content {
+  margin-left: 260px;
+  padding: 40px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 25px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.3s;
+  font-size: 0.9rem;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 84, 200, 0.4);
+}
+
+/* Bento Grid */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: 0.3s;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+.card-body {
+  padding: 20px;
+}
+
+.badge {
+  background: #e0e7ff;
+  color: var(--primary);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* Forms */
+.form-control {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+}
+.form-control:focus {
+  border-color: var(--primary);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+}
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+}
