@@ -1,15 +1,20 @@
+-- ====================================================
+-- 1. DATABASE SETUP
+-- ====================================================
+DROP DATABASE IF EXISTS techfest_db;
 CREATE DATABASE techfest_db;
 USE techfest_db;
 
 -- ====================================================
--- SECTION 1: INDEPENDENT TABLES
+-- 2. USERS & ROLES (Independent Tables)
 -- ====================================================
 
--- 1. Participants
+-- 1. Participants (Students) - NEEDS LOGIN
 CREATE TABLE participants (
     participant_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- Login Password
     phone VARCHAR(15) NOT NULL,
     college VARCHAR(150) NOT NULL,
     department VARCHAR(100) NOT NULL,
@@ -17,35 +22,36 @@ CREATE TABLE participants (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Mentors
+-- 2. Mentors (Professors) - NEEDS LOGIN
 CREATE TABLE mentors (
     mentor_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
+    
     department VARCHAR(100) NOT NULL,
     phone VARCHAR(15) NOT NULL,
-    designation VARCHAR(100) NOT NULL, 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    designation VARCHAR(100) NOT NULL
 );
 
--- 3. Clubs
-CREATE TABLE clubs (
-    club_id INT AUTO_INCREMENT PRIMARY KEY,
-    club_name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 4. Coordinators
+-- 3. Coordinators (Student Heads) - NEEDS LOGIN
 CREATE TABLE coordinators (
     coordinator_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    phone VARCHAR(15) NOT NULL,
-    email VARCHAR(150),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- Login Password
+    phone VARCHAR(15) NOT NULL
 );
 
--- 5. Judges
+-- 4. Clubs (Club Admin Accounts) - NEEDS LOGIN
+CREATE TABLE clubs (
+    club_id INT AUTO_INCREMENT PRIMARY KEY,
+    club_name VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(150) UNIQUE, -- Club official email
+    password VARCHAR(255) NOT NULL, -- Login Password
+    description TEXT
+);
+
+-- 5. Judges (External - Usually No Login, just records)
 CREATE TABLE judges (
     judge_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -55,7 +61,7 @@ CREATE TABLE judges (
     phone VARCHAR(15)
 );
 
--- 6. Volunteers
+-- 6. Volunteers (Helpers - Usually No Login)
 CREATE TABLE volunteers (
     volunteer_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -63,14 +69,14 @@ CREATE TABLE volunteers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 7. Accommodation
+-- 7. Accommodation (Rooms)
 CREATE TABLE accommodation (
     room_id INT AUTO_INCREMENT PRIMARY KEY,
     room_type VARCHAR(50) NOT NULL, 
     cost DECIMAL(10,2) NOT NULL
 );
 
--- 8. Sponsors
+-- 8. Sponsors (Companies)
 CREATE TABLE sponsors (
     sponsor_id INT AUTO_INCREMENT PRIMARY KEY,
     organization_name VARCHAR(150) NOT NULL,
@@ -80,10 +86,10 @@ CREATE TABLE sponsors (
 );
 
 -- ====================================================
--- SECTION 2: MAIN ENTITIES
+-- 3. EVENTS & TEAMS (Dependent Tables)
 -- ====================================================
 
--- 9. Events (No Entry Fee, No Prize Pool column)
+-- 9. Events
 CREATE TABLE events (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     event_name VARCHAR(100) NOT NULL,
@@ -109,24 +115,24 @@ CREATE TABLE teams (
 );
 
 -- ====================================================
--- SECTION 3: DEPENDENT TABLES (The Logic Layers)
+-- 4. RELATIONSHIPS & LOGIC (Linking Tables)
 -- ====================================================
 
--- 11. Prizes (NEW TABLE)
--- Linked to Event. winning_team_id is NULL initially.
+-- 11. Prizes (Linked to Event -> Winner can be Team OR Volunteer)
 CREATE TABLE prizes (
     prize_id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
-    rank_name VARCHAR(50) NOT NULL, -- e.g. "1st Place", "Runner Up"
-    prize_type VARCHAR(50) NOT NULL, -- e.g. "Cash", "Trophy", "Certificate"
+    prize_name VARCHAR(100) NOT NULL,
+    prize_type VARCHAR(50) NOT NULL,
     value DECIMAL(10,2) DEFAULT 0.00,
-    winning_team_id INT, -- Default is NULL
-    
+    winning_team_id INT, 
+    winning_volunteer_id INT,
     FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
-    FOREIGN KEY (winning_team_id) REFERENCES teams(team_id) ON DELETE SET NULL
+    FOREIGN KEY (winning_team_id) REFERENCES teams(team_id) ON DELETE SET NULL,
+    FOREIGN KEY (winning_volunteer_id) REFERENCES volunteers(volunteer_id) ON DELETE SET NULL
 );
 
--- 12. Forms (Team Members)
+-- 12. Forms (Team Members: Participant <-> Team)
 CREATE TABLE forms (
     p_id INT,
     t_id INT,
@@ -136,7 +142,7 @@ CREATE TABLE forms (
     FOREIGN KEY (t_id) REFERENCES teams(team_id) ON DELETE CASCADE
 );
 
--- 13. Event_Judges
+-- 13. Event_Judges (Event <-> Judge)
 CREATE TABLE event_judges (
     event_id INT,
     judge_id INT,
@@ -145,7 +151,7 @@ CREATE TABLE event_judges (
     FOREIGN KEY (judge_id) REFERENCES judges(judge_id) ON DELETE CASCADE
 );
 
--- 14. Event_Volunteers
+-- 14. Event_Volunteers (Event <-> Volunteer)
 CREATE TABLE event_volunteers (
     event_id INT,
     volunteer_id INT,
@@ -156,7 +162,7 @@ CREATE TABLE event_volunteers (
     FOREIGN KEY (volunteer_id) REFERENCES volunteers(volunteer_id) ON DELETE CASCADE
 );
 
--- 15. Bookings (Accommodation)
+-- 15. Bookings (Participant <-> Accommodation)
 CREATE TABLE bookings (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
     participant_id INT NOT NULL UNIQUE, 
@@ -168,7 +174,7 @@ CREATE TABLE bookings (
     FOREIGN KEY (room_id) REFERENCES accommodation(room_id) ON DELETE CASCADE
 );
 
--- 16. Funds (Sponsorships)
+-- 16. Funds (Sponsor <-> Event)
 CREATE TABLE funds (
     fund_id INT AUTO_INCREMENT PRIMARY KEY,
     sponsor_id INT,
@@ -180,10 +186,11 @@ CREATE TABLE funds (
     FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE
 );
 
--- 17. Registrations (Team -> Event)
+-- 17. Registrations (Team <-> Event)
 CREATE TABLE registrations (
     team_id INT,
     event_id INT,
+    score INTEGER(3),
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (team_id, event_id),
     FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE,
