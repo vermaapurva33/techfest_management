@@ -1,7 +1,6 @@
 -- ====================================================
 -- 1. DATABASE SETUP
 -- ====================================================
-DROP DATABASE IF EXISTS techfest_db;
 CREATE DATABASE techfest_db;
 USE techfest_db;
 
